@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const sqldb = require('../sqldb');
 
-//REGISTER
+//REGISTER 
 router.post('/register', async (req,res)=>{
     try{
         //generate password
@@ -20,7 +20,6 @@ router.post('/register', async (req,res)=>{
         }
     }
 );
-
 
 //LOGIN
 router.post('/login', async (req,res)=>{
