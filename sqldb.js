@@ -1,8 +1,8 @@
-const sql = require('mssql/msnodesqlv8');
-const config = require('./config');
+const sql = require("mssql/msnodesqlv8");
+const config = require("./config");
 
-const sqldb = new sql.connect(config)
+const sqldb = new sql.connect(config);
 
-console.log("connect to sqlserver")
+console.log("connect to sqlserver");
 
-module.exports = sqldb
+module.exports = sqldb;

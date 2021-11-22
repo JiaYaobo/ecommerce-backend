@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
 });
 
 //DELETE PRODUCT FROM CART
-router.post("/:order_id", async (req, res) => {
+router.delete("/:order_id", async (req, res) => {
   try {
     const pool = await sqldb;
     await pool.query`delete from orders where order_id = ${req.params.order_id} `;
@@ -31,3 +31,25 @@ router.post("/:order_id", async (req, res) => {
     console.log(err);
   }
 });
+
+//GET ALL ORDERS BY A USER
+router.get("/all/:user_id", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    let inCart =
+      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 0`;
+    let inTrans =
+      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 1 `;
+    let inFinished =
+      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 2 `;
+    inCart = await inCart.recordsets[0];
+    inTrans = await inTrans.recordsets[0];
+    inFinished = await inFinished.recordsets[0];
+    data = { inCart: inCart, inTrans: inTrans, inFinished: inFinished };
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+module.exports = router;
