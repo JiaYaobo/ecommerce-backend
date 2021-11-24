@@ -16,12 +16,28 @@ router.post("/", async (req, res) => {
 });
 
 //DELETE A PRODUCT
-router.delete("/:goods_id", async (req, res) => {
+router.delete("/:productId", async (req, res) => {
   try {
     const pool = await sqldb;
-    await pool.query`delete from goods where goods_id = ${req.params.goods_id}`;
+    await pool.query`delete from goods where goods_id = ${req.params.productId}`;
     res.status(200).send("delete product successful");
   } catch (err) {
     console.log(err);
   }
 });
+
+//GET A PRODUCT
+router.get("/:productId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result =
+      await pool.query`select * from goods where goods_id = ${req.params.productId}`;
+    console.log(result.recordset[0]);
+    const product = result.recordset[0];
+    res.status(200).json(product);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+module.exports = router;

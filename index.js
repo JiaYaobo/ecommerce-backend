@@ -9,6 +9,7 @@ dotenv.config();
 
 const authRoute = require("./routes/auth");
 const orderRoute = require("./routes/order");
+const productRoute = require("./routes/product");
 
 app.use(express.json());
 app.use(helmet());
@@ -17,6 +18,7 @@ app.use(cors());
 
 app.use("/api/auth", authRoute);
 app.use("/api/order", orderRoute);
+app.use("/api/product", productRoute);
 
 app.listen(8800, () => {
   console.log("Backend server is running");

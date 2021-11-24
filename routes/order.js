@@ -52,4 +52,20 @@ router.get("/all/:user_id", async (req, res) => {
   }
 });
 
+//GET A PRODUCT INFO COMBINED ORDER INFO FROM ORDER
+router.get("/cart_product_info/:orderId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select orders.*, goods.goods_image, goods.goods_name,goods.goods_price
+    from orders, goods
+    where orders.goods_id = goods.goods_id and orders.order_id = ${req.params.orderId}
+    `;
+    const data = await result.recordsets[0][0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;
