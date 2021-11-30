@@ -157,7 +157,7 @@ router.post("/add_to_trans", async (req, res) => {
     select * from orders
     where orders.order_id = ${req.body.orderId}
     `;
-    const data = await result.recordsets[0];
+    const data = await result.recordsets[0][0];
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
@@ -180,13 +180,50 @@ router.get("/finished_orders/:userId", async (req, res) => {
 });
 
 //GET A PRODUCT INFO COMBINED ORDER INFO FROM ORDER
-router.get("/cart_product_info/:orderId", async (req, res) => {
+router.get("/product_info/:orderId", async (req, res) => {
   try {
     const pool = await sqldb;
     const result = await pool.query`
-    select goods.goods_image, goods.goods_name,goods.goods_price
-    from orders, goods
-    where orders.goods_id = goods.goods_id and orders.order_id = ${req.params.orderId}
+    select goods.goods_image, goods.goods_name,goods.goods_price,users.user_name
+    from orders, goods, users
+    where orders.goods_id = goods.goods_id and 
+    goods.store_id = users.user_id and
+    orders.order_id = ${req.params.orderId}
+    `;
+    const data = await result.recordsets[0][0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// cancel a trans order
+router.delete("/cancel/:orderId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    await pool.query`
+    delete
+    from orders
+    where order_id = ${req.params.orderId}
+    `;
+    res.status(200).send("cancel order successfully");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//confirm trans order to finished orders
+router.post("/finish/:orderId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    await pool.query`
+    update orders
+    set orders.order_status = 3
+    where orders.order_id = ${req.params.orderId} and orders.order_status = 2
+    `;
+    const result = await pool.query` 
+    select * from orders
+    where orders.order_id = ${req.params.orderId}
     `;
     const data = await result.recordsets[0][0];
     res.status(200).json(data);
