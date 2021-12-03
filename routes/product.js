@@ -40,4 +40,34 @@ router.get("/:productId", async (req, res) => {
   }
 });
 
+//get 10 products
+router.get("/featured_products/10", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select top 10 *
+    from goods
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//get all products
+router.get("/products/all", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select *
+    from goods
+    `;
+    const data = result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;

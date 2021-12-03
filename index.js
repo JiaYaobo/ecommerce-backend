@@ -21,7 +21,6 @@ app.use(cors());
 app.use("/api/auth", authRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/product", productRoute);
-app.use("/api/test", testRoute);
 app.use("/api/store", storeRoute);
 
 app.listen(8800, () => {
