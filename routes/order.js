@@ -184,7 +184,7 @@ router.get("/product_info/:orderId", async (req, res) => {
   try {
     const pool = await sqldb;
     const result = await pool.query`
-    select goods.goods_image, goods.goods_name,goods.goods_price,users.user_name
+    select goods.goods_image, goods.goods_name,goods.goods_price,users.user_name,goods.store_id,goods.goods_id
     from orders, goods, users
     where orders.goods_id = goods.goods_id and 
     goods.store_id = users.user_id and

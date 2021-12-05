@@ -5,7 +5,10 @@ const sqldb = require("../sqldb");
 router.post("/", async (req, res) => {
   try {
     const pool = await sqldb;
-    await pool.query`insert into Comments(order_id, comment_time, comment_rating, comment_text) values (${req.body.order_id}, ${req.body.comment_time}, ${req.body.comment_rating}, ${req.body.comment_text}) `;
+    await pool.query`insert 
+    into
+     Comments(order_id, created_at, comment_rating, comment_text) 
+     values (${req.body.order_id}, getdate(), ${req.body.comment_rating}, ${req.body.comment_text}) `;
     res.status(200).send("success publish comment");
   } catch (err) {
     console.log(err);
@@ -57,3 +60,23 @@ router.post("/:comment_id/dislike", async (req, res) => {
     console.log(err);
   }
 });
+
+//get comments by goods_id
+router.get("/comments/:goodsId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select comments.*, users.user_name, users.user_profile
+    from comments, goods, orders, users
+    where comments.order_id = orders.order_id and
+     orders.goods_id = goods.goods_id and
+     orders.user_id = users.user_id and goods.goods_id = ${req.params.goodsId}
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+module.exports = router;

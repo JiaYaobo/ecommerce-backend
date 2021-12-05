@@ -70,4 +70,20 @@ router.get("/products/all", async (req, res) => {
   }
 });
 
+//get all products by a store
+router.get("/products/store/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select goods.* from 
+    goods
+    where goods.store_id = ${req.params.storeId}
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;

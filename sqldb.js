@@ -1,4 +1,4 @@
-const sql = require("mssql");
+const sql = require("mssql/msnodesqlv8");
 const config = require("./config");
 
 const sqldb = new sql.connect(config);
