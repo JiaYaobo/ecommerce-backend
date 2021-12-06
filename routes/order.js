@@ -51,7 +51,10 @@ router.post("/add_to_cart", async (req, res) => {
 router.delete("/cart_orders/:order_id", async (req, res) => {
   try {
     const pool = await sqldb;
-    await pool.query`delete from orders where order_id = ${req.params.order_id} `;
+    await pool.query`delete 
+    from 
+    orders 
+    where order_id = ${req.params.order_id} `;
     res.status(200).send("delete from cart successfully");
   } catch (err) {
     console.log(err);
