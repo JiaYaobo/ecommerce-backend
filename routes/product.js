@@ -32,7 +32,6 @@ router.get("/:productId", async (req, res) => {
     const pool = await sqldb;
     const result =
       await pool.query`select * from goods where goods_id = ${req.params.productId}`;
-    console.log(result.recordset[0]);
     const product = result.recordset[0];
     res.status(200).json(product);
   } catch (err) {

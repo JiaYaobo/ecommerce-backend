@@ -13,6 +13,8 @@ const productRoute = require("./routes/product");
 const storeRoute = require("./routes/store");
 const memberRoute = require("./routes/member");
 const commentRoute = require("./routes/comment");
+const vipRoute = require("./routes/vip");
+const chatRoute = require("./routes/chat");
 
 app.use(express.json());
 app.use(helmet());
@@ -25,6 +27,8 @@ app.use("/api/product", productRoute);
 app.use("/api/store", storeRoute);
 app.use("/api/member", memberRoute);
 app.use("/api/comment", commentRoute);
+app.use("/api/vip", vipRoute);
+app.use("/api/chat", chatRoute);
 
 app.listen(8800, () => {
   console.log("Backend server is running");

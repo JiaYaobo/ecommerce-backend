@@ -9,13 +9,18 @@ router.post("/", async (req, res) => {
     into
      Comments(order_id, created_at, comment_rating, comment_text) 
      values (${req.body.order_id}, getdate(), ${req.body.comment_rating}, ${req.body.comment_text}) `;
+    await pool.query`
+     update orders
+     set comment_status = 1
+     where order_id = ${req.body.order_id}
+     `;
     res.status(200).send("success publish comment");
   } catch (err) {
     console.log(err);
   }
 });
 
-// CREATE COMMENT FOR A COMMENT
+// CREATE COMMENT
 router.post("/:comment_id", async (req, res) => {
   try {
     const pool = await sqldb;
@@ -44,17 +49,6 @@ router.post("/:comment_id/like", async (req, res) => {
   try {
     const pool = await sqldb;
     await pool.query`update from comments set like=like+1 where comment_id = ${req.params.comment_id}`;
-    res.status(200).send(`like comment ${req.params.comment_id}`);
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-// dislike a comment
-router.post("/:comment_id/dislike", async (req, res) => {
-  try {
-    const pool = await sqldb;
-    await pool.query`update from comments set dislike=dislike+1 where comment_id = ${req.params.comment_id}`;
     res.status(200).send(`like comment ${req.params.comment_id}`);
   } catch (err) {
     console.log(err);

@@ -32,7 +32,7 @@ router.post("/add_to_cart", async (req, res) => {
           ${req.body.order_total},
           getdate(),
           ${0},
-          ${req.body.order_expect_time}) `;
+          ${req.body.order_expect_time})`;
     const result = await pool.query`
     select Top 1 * from orders
     where orders.user_id = ${req.body.user_id} and 
@@ -67,14 +67,22 @@ router.get("/all/:user_id", async (req, res) => {
     const pool = await sqldb;
     let inCart =
       await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 0`;
+    let inWait =
+      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 1`;
     let inTrans =
-      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 1 `;
-    let inFinished =
       await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 2 `;
+    let inFinished =
+      await pool.query`select * from orders where user_id = ${req.params.user_id} and order_status = 3 `;
     inCart = await inCart.recordsets[0];
+    inWait = await inWait.recordsets[0];
     inTrans = await inTrans.recordsets[0];
     inFinished = await inFinished.recordsets[0];
-    data = { inCart: inCart, inTrans: inTrans, inFinished: inFinished };
+    data = {
+      inCart: inCart,
+      inWait: inWait,
+      inTrans: inTrans,
+      inFinished: inFinished,
+    };
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
@@ -131,6 +139,21 @@ router.post("/cart_orders/remove/:orderId", async (req, res) => {
   }
 });
 
+//get wait orders by a user
+router.get("/wait_orders/:userId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select * from orders
+    where orders.user_id = ${req.params.userId} and orders.order_status = 1
+    `;
+    const data = await result.recordsets[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 //get trans orders by a user
 router.get("/trans_orders/:userId", async (req, res) => {
   try {
@@ -146,7 +169,28 @@ router.get("/trans_orders/:userId", async (req, res) => {
   }
 });
 
-//add trsns  order from cart
+//add wait order from cart
+router.post("/add_to_wait", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    await pool.query`
+    update
+    orders
+    set order_status = 1
+    where orders.order_id = ${req.body.orderId}
+    `;
+    const result = await pool.query`
+    select * from orders
+    where orders.order_id = ${req.body.orderId}
+    `;
+    const data = await result.recordsets[0][0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//add trans order from cart
 router.post("/add_to_trans", async (req, res) => {
   try {
     const pool = await sqldb;
@@ -155,6 +199,15 @@ router.post("/add_to_trans", async (req, res) => {
     orders
     set order_status = 2
     where orders.order_id = ${req.body.orderId}
+    `;
+    await pool.query`
+    update
+    goods
+    set goods.goods_stock = goods.goods_stock-1
+    where goods,goods_id = (select orders.goods_id
+      from orders
+      where orders.order_id = ${req.body.orderId}
+      ) 
     `;
     const result = await pool.query`
     select * from orders
