@@ -45,10 +45,10 @@ router.delete("/:comment_id", async (req, res) => {
 // 存在问题 一个用户喜欢或者不喜欢多次无法处理，并且可以同时喜欢不喜欢，需要加一张表
 
 //like a comment
-router.post("/:comment_id/like", async (req, res) => {
+router.post("/like/:comment_id", async (req, res) => {
   try {
     const pool = await sqldb;
-    await pool.query`update from comments set like=like+1 where comment_id = ${req.params.comment_id}`;
+    await pool.query`update  comments set comment_likes=comment_likes+1 where comment_id = ${req.params.comment_id}`;
     res.status(200).send(`like comment ${req.params.comment_id}`);
   } catch (err) {
     console.log(err);

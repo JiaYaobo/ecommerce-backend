@@ -5,26 +5,55 @@ const sqldb = require("../sqldb");
 router.post("/create_conversation/:userId/:storeId", async (req, res) => {
   try {
     const pool = await sqldb;
-    await pool.query`
+    const result = await pool.query`
+    select *
+    from conversation
+    where user_id = ${req.params.userId} and store_id = ${req.params.storeId}
+    `;
+    const data = await result.recordset;
+    if (data.length === 0) {
+      try {
+        await pool.query`
         insert into
         conversation (user_id, store_id, created_at)
         values(${req.params.userId}, ${req.params.storeId}, getdate())
         `;
-    res.status(200).send("create a conversation successfully");
+        res.status(200).send("create a conversation successfully");
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      res.status(200).send("conversation has been created before");
+    }
   } catch (err) {
     console.log(err);
   }
 });
 
 // get all conversations by user id
-router.get("/conversations_all/:userId/", async (req, res) => {
+router.get("/conversations_all/:userId", async (req, res) => {
   try {
     const pool = await sqldb;
     const result = await pool.query`
         select *
         from conversation
-        where conversation.user_id = ${req.params.userId}
+        where conversation.user_id = ${req.params.userId} 
         `;
+    const data = result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.get("/conversations_all/store/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select *
+    from conversation
+    where conversation.store_id = ${req.params.storeId} 
+    `;
     const data = result.recordset;
     res.status(200).json(data);
   } catch (err) {

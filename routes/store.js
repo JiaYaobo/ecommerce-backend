@@ -33,4 +33,20 @@ router.get("/store_info/:storeId", async (req, res) => {
   }
 });
 
+//get store province and city
+router.get("/store_place/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select user_province, user_city
+    from users
+    where user_id = ${req.params.storeId}    
+    `;
+    const data = await result.recordset[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;

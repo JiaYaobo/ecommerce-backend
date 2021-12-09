@@ -19,6 +19,7 @@
     "morgan": "^1.10.0",
     "msnodesqlv8": "^2.4.1",
     "mssql": "^7.2.1",
-    "nodemon": "^2.0.14"
+    "nodemon": "^2.0.14",
+    "socket.io-client": "^4.4.0"
   }
 }
