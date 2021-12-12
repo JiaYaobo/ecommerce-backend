@@ -190,7 +190,7 @@ router.post("/add_to_wait", async (req, res) => {
   }
 });
 
-//add trans order from cart
+//add trans order from wait
 router.post("/add_to_trans", async (req, res) => {
   try {
     const pool = await sqldb;
@@ -204,7 +204,7 @@ router.post("/add_to_trans", async (req, res) => {
     update
     goods
     set goods.goods_stock = goods.goods_stock-1
-    where goods,goods_id = (select orders.goods_id
+    where goods.goods_id = (select orders.goods_id
       from orders
       where orders.order_id = ${req.body.orderId}
       ) 
@@ -283,6 +283,44 @@ router.post("/finish/:orderId", async (req, res) => {
     `;
     const data = await result.recordsets[0][0];
     res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//GET ALL ORDERS BY A Store
+router.get("/all/store/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    let inWait =
+      await pool.query`select * from orders where user_id = ${req.params.storeId} and order_status = 1`;
+    let inTrans =
+      await pool.query`select * from orders where user_id = ${req.params.storeId} and order_status = 2 `;
+    let inFinished =
+      await pool.query`select * from orders where user_id = ${req.params.storeId} and order_status = 3 `;
+    inWait = await inWait.recordsets[0];
+    inTrans = await inTrans.recordsets[0];
+    inFinished = await inFinished.recordsets[0];
+    data = {
+      inWait: inWait,
+      inTrans: inTrans,
+      inFinished: inFinished,
+    };
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//delete a order
+router.delete("/delete_order/:orderId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    await pool.query`
+  delete
+  from orders
+  where order_id = ${req.params.orderId}
+  `;
   } catch (err) {
     console.log(err);
   }

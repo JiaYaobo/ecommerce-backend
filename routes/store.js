@@ -49,4 +49,65 @@ router.get("/store_place/:storeId", async (req, res) => {
   }
 });
 
+//get fnished orders by a user
+router.get("/finished_orders/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select * from orders
+    where orders.store_id = ${req.params.storeId} and orders.order_status = 3
+    `;
+    const data = await result.recordsets[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//get trans orders by a store
+router.get("/trans_orders/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select * from orders
+    where orders.store_id = ${req.params.storeId} and orders.order_status = 2
+    `;
+    const data = await result.recordsets[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//get wait orders by a store
+router.get("/wait_orders/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select * from orders
+    where orders.store_id = ${req.params.storeId} and orders.order_status = 1
+    `;
+    const data = await result.recordsets[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//get all vips
+router.get("/vips_all/:storeId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+    select users.user_name, users.user_id, vip.vip_type, vip.discount , users.user_profile
+    from users, vip
+    where vip.user_id = users.user_id and vip.store_id = ${req.params.storeId}
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;

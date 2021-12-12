@@ -78,6 +78,23 @@ router.get("/store_info/:conversationId", async (req, res) => {
   }
 });
 
+//get user info by conversation id
+router.get("/user_info/:conversationId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+        select users.user_id, users.user_name
+        from users, conversation
+        where users.user_id = conversation.user_id and
+            conversation.conversation_id = ${req.params.conversationId}
+        `;
+    const data = await result.recordset[0];
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // get messages from conversation
 router.get("/messages/:conversationId", async (req, res) => {
   try {
@@ -86,6 +103,7 @@ router.get("/messages/:conversationId", async (req, res) => {
         select * from
         message
         where message.conversation_id = ${req.params.conversationId}
+        order by created_at asc
         `;
     const data = result.recordset;
     res.status(200).json(data);
