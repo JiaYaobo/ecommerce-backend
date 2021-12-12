@@ -153,4 +153,21 @@ router.get("/order_stats/store/:storeId", async (req, res) => {
   }
 });
 
+router.get("/province", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    const result = await pool.query`
+  SELECT u.user_province ,AVG(order_total) cost_average,max(order_total) cost_max,min(order_total) cost_min
+FROM Users u LEFT JOIN Orders o on(u.user_id=o.user_id)/*null加和就是没有 这样排除一下没有消费的用户*/
+WHERE u.user_status=1 AND o.order_status<>0/*现在最新orders表还是只有0/1状态*/
+GROUP BY u.user_province
+ORDER BY cost_average desc
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;

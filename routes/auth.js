@@ -8,12 +8,15 @@ router.post("/register", async (req, res) => {
   try {
     //generate password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    hashedPasswordString = hashedPassword.toString();
     //create a new user
     pool = await sqldb;
-    await pool.query`insert into users (username, email, password, home_address, mobile) values(${req.body.username}, ${req.body.email}, ${hashedPasswordString}, ${req.body.home_address}, ${req.body.mobile})`;
-    result = await pool.query`select * from user where email=${req.body.email}`;
+    await pool.query`
+    insert into 
+    users 
+    (user_name, user_email, user_password, user_province, user_city, user_mobile) 
+    values(${req.body.user_name}, ${req.body.user_email}, ${req.body.user_password}, ${req.body.user_province},${req.body.user_city}, ${req.body.user_mobile})`;
+    result =
+      await pool.query`select * from user where email=${req.body.user_email}`;
     user = await result.recordsets[0][0];
     res.status(200).json(user);
   } catch (err) {
@@ -31,10 +34,6 @@ router.post("/login", async (req, res) => {
     user = await result.recordsets[0][0];
     console.log(user);
     !user && res.status(404).send("user not found");
-    // const validPassword = await bcrypt.compare(
-    //   req.body.password,
-    //   user.password
-    // );
     const validPassword = (await req.body.user_password) === user.user_password;
     !validPassword && res.status(400).json("wrong password");
 
