@@ -2,14 +2,21 @@ const router = require("express").Router();
 const sqldb = require("../sqldb");
 
 // CREATE NEW PRODUCT
-router.post("/", async (req, res) => {
+router.post("/:storeId", async (req, res) => {
   try {
     const pool = await sqldb;
     await pool.query`insert into 
         Goods 
-        (goods_name, store_id, goods_price, goods_info, goods_image, goods_size, goods_brand, goods_func)
-        values()`;
-    res.status(200).send("create a new product");
+        (goods_id, goods_name, store_id, created_at, goods_price, goods_stock, goods_info, goods_image, goods_brand, goods_func)
+        values(1001,${req.body.goods_name}, ${req.params.storeId}, getdate(), ${req.body.goods_price}, ${req.body.goods_stock}, ${req.body.goods_info}, ${req.body.goods_image}, ${req.body.goods_brand}, ${req.body.goods_func} )`;
+    const result = await pool.query`
+    select Top 1 *
+    from goods
+    where goods.store_id = ${req.params.storeId}
+    order by goods_id desc
+    `;
+    const data = await result.recordset[0];
+    res.status(200).send(data);
   } catch (err) {
     console.log(err);
   }
@@ -79,6 +86,28 @@ router.get("/products/store/:storeId", async (req, res) => {
     where goods.store_id = ${req.params.storeId}
     `;
     const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+//update a product
+router.post("/update/:productId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    await pool.query`
+   update
+   goods
+   set goods_price = ${req.body.goods_price}, goods_name=${req.body.goods_name}, goods_status = ${req.body.goods_status}
+   where goods_id = ${req.params.productId}
+  `;
+    const result = await pool.query`
+  select * from
+  goods
+  where goods_id = ${req.params.productId}
+  `;
+    const data = result.recordset[0];
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
