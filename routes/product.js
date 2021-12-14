@@ -114,4 +114,24 @@ router.post("/update/:productId", async (req, res) => {
   }
 });
 
+//get goods by search query
+router.post("/search_goods/search", async (req, res) => {
+  try {
+    const pool = await sqldb;
+    let string = await req.body.query.toLowerCase();
+    string = await ("%" + string + "%");
+    const result = await pool.query`
+    select *
+    from goods
+    where lower(goods_name) like ${string} or 
+    lower(goods_brand) like ${string} or
+     lower(goods_info) like ${string}
+    `;
+    const data = await result.recordset;
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;
