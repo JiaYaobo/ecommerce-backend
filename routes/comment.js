@@ -73,4 +73,72 @@ router.get("/comments/:goodsId", async (req, res) => {
   }
 });
 
+// get overview comment
+router.get("/overview/:productId", async (req, res) => {
+  try {
+    const pool = await sqldb;
+
+    let star5 = await pool.query`
+    select Orders.goods_id, count(*) num
+from Orders, Comments
+where Orders.comment_status = 1 and Orders.order_id = Comments.order_id and Comments.comment_rating = 5 and goods_id = ${req.params.productId}
+group by orders.goods_id
+    `;
+    star5 = star5.recordset.length == 0 ? 0 : star5.recordset[0].num;
+
+    let star4 = await pool.query`
+    select Orders.goods_id, count(*) num
+from Orders, Comments
+where Orders.comment_status = 1 and Orders.order_id = Comments.order_id and Comments.comment_rating = 4 and goods_id = ${req.params.productId}
+group by orders.goods_id
+    `;
+    star4 = star4.recordset.length == 0 ? 0 : star4.recordset[0].num;
+
+    let star3 = await pool.query`
+    select Orders.goods_id, count(*) num
+from Orders, Comments
+where Orders.comment_status = 1 and Orders.order_id = Comments.order_id and Comments.comment_rating = 3 and goods_id = ${req.params.productId}
+group by orders.goods_id
+    `;
+    star3 = star3.recordset.length == 0 ? 0 : star3.recordset[0].num;
+    let star2 = await pool.query`
+    select Orders.goods_id, count(*) num
+from Orders, Comments
+where Orders.comment_status = 1 and Orders.order_id = Comments.order_id and Comments.comment_rating = 2 and goods_id = ${req.params.productId}
+group by orders.goods_id
+    `;
+    star2 = star2.recordset.length == 0 ? 0 : star2.recordset[0].num;
+
+    let star1 = await pool.query`
+    select Orders.goods_id, count(*) num
+from Orders, Comments
+where Orders.comment_status = 1 and Orders.order_id = Comments.order_id and Comments.comment_rating = 1 and goods_id = ${req.params.productId}
+group by orders.goods_id
+    `;
+    star1 = star1.recordset.length == 0 ? 0 : star1.recordset[0].num;
+
+    let total = 0;
+
+    if (star1 + star2 + star3 + star4 + star5 === 0) {
+      total = 0;
+    } else {
+      total =
+        (star1 + 2 * star2 + 3 * star3 + 4 * star4 + 5 * star5) /
+        (star1 + star2 + star3 + star4 + star5);
+    }
+    const data = {
+      star1: star1,
+      star2: star2,
+      star3: star3,
+      star4: star4,
+      star5: star5,
+      total: total,
+    };
+
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = router;
